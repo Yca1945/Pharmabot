@@ -1,0 +1,29 @@
+sequenceDiagram
+    autonumber
+    actor P as Patient
+    participant F as Front Web/Mobile
+    participant L as API Laravel
+    participant IA as Microservice IA (FastAPI)
+    participant V as ChromaDB (vectoriel)
+    participant M as LLM
+    participant DB as MySQL
+
+    P->>F: Saisit une question
+    F->>L: POST /api/chat (Bearer token)
+    L->>L: Vérifie token + rôle (Sanctum)
+    L->>IA: POST /chat { message }
+    IA->>V: Recherche vectorielle (top_k)
+    V-->>IA: Fiches médicaments + similarité
+
+    alt Meilleure similarité < seuil
+        Note over IA: Garde-fou anti-hallucination
+        IA-->>L: { abstention: true, message prudent }
+    else Contexte fiable récupéré
+        IA->>M: Prompt contraint + contexte
+        M-->>IA: Réponse (température 0)
+        IA-->>L: { réponse, sources, fidélité }
+    end
+
+    L->>DB: Enregistre DiscussionLog
+    L-->>F: Réponse JSON
+    F-->>P: Affiche réponse + sources

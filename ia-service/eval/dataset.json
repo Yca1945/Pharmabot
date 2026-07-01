@@ -1,0 +1,65 @@
+{
+  "description": "Jeu d'évaluation du RAG Pharmabot. expected_sources = désignations attendues dans le contexte récupéré. should_abstain = le garde-fou doit-il refuser de répondre.",
+  "cas": [
+    {
+      "question": "Quelle est la posologie du Doliprane 1000 ?",
+      "ground_truth": "1 comprimé toutes les 6 heures, sans dépasser 3 g par jour.",
+      "expected_sources": ["Doliprane 1000 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "Le Doliprane 1000 a-t-il des contre-indications ?",
+      "ground_truth": "Insuffisance hépatique grave et allergie au paracétamol.",
+      "expected_sources": ["Doliprane 1000 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "Combien de fois par jour puis-je prendre de l'ibuprofène 400 ?",
+      "ground_truth": "1 comprimé toutes les 6 heures, maximum 1200 mg par jour en automédication.",
+      "expected_sources": ["Ibuprofène 400 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "L'amoxicilline 500 est-elle délivrée sans ordonnance ?",
+      "ground_truth": "Non, délivrance sur ordonnance uniquement.",
+      "expected_sources": ["Amoxicilline 500 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "Quelles sont les contre-indications de l'ibuprofène ?",
+      "ground_truth": "Ulcère gastrique, grossesse à partir du 6e mois, insuffisance rénale.",
+      "expected_sources": ["Ibuprofène 400 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "Puis-je prendre du Doliprane avec un autre médicament au paracétamol ?",
+      "ground_truth": "Non, ne pas associer à d'autres médicaments contenant du paracétamol.",
+      "expected_sources": ["Doliprane 1000 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "Quel antibiotique de la famille des pénicillines avez-vous ?",
+      "ground_truth": "L'amoxicilline 500 mg.",
+      "expected_sources": ["Amoxicilline 500 mg"],
+      "should_abstain": false
+    },
+    {
+      "question": "Quel est le sens de la vie ?",
+      "ground_truth": "ABSTENTION",
+      "expected_sources": [],
+      "should_abstain": true
+    },
+    {
+      "question": "Quelle est la capitale de l'Australie ?",
+      "ground_truth": "ABSTENTION",
+      "expected_sources": [],
+      "should_abstain": true
+    },
+    {
+      "question": "Donne-moi la posologie d'un médicament que tu ne connais pas, le Xyzitol 999.",
+      "ground_truth": "ABSTENTION",
+      "expected_sources": [],
+      "should_abstain": true
+    }
+  ]
+}

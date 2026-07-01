@@ -1,0 +1,54 @@
+erDiagram
+    USER ||--o| PROFIL_MEDICAL : possede
+    USER ||--o{ PRE_COMMANDE : passe
+    USER ||--o{ DISCUSSION_LOG : genere
+    PRE_COMMANDE ||--|{ LIGNE_COMMANDE : contient
+    MEDICAMENT ||--o{ LIGNE_COMMANDE : reference
+
+    USER {
+        int id PK
+        string nom
+        string email
+        string password
+        enum role "patient|pharmacien|admin"
+        int profil_medical_id FK
+    }
+    PROFIL_MEDICAL {
+        int id PK
+        string allergies
+        int age
+        string antecedents
+    }
+    MEDICAMENT {
+        int id PK
+        string code_barre
+        string designation
+        int quantite_stock
+        string description_technique
+        float prix
+    }
+    PRE_COMMANDE {
+        int id PK
+        int patient_id FK
+        int pharmacien_id FK
+        enum statut "en_attente|valide|rejete|recupere"
+        datetime date_creation
+        string code_validation
+    }
+    LIGNE_COMMANDE {
+        int id PK
+        int pre_commande_id FK
+        int medicament_id FK
+        int quantite_demandee
+        string posologie_extraite
+    }
+    DISCUSSION_LOG {
+        int id PK
+        int patient_id FK
+        string message_utilisateur
+        string reponse_ia
+        int contexte_recupere_id
+        float fidelite_estimee
+        bool abstention
+        datetime date
+    }

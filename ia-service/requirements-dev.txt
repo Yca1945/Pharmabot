@@ -1,0 +1,3 @@
+# Dépendances de test (légères, pour CI rapide)
+-r requirements.txt
+pytest==8.3.4

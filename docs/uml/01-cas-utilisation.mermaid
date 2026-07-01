@@ -1,0 +1,38 @@
+flowchart LR
+    patient([Patient]):::actor
+    pharma([Pharmacien]):::actor
+    admin([Administrateur]):::actor
+
+    subgraph Pharmabot[" Système Pharmabot "]
+        uc1(S'authentifier)
+        uc2(Dialoguer avec le chatbot)
+        uc3(Consulter une information médicament)
+        uc4(Initier une pré-commande)
+        uc5(Recevoir des notifications)
+        uc6(Recevoir des rappels de prise)
+        uc7(Consulter les pré-commandes)
+        uc8(Valider / Rejeter / Modifier une commande)
+        uc9(Gérer le catalogue médicaments)
+        uc10(Gérer les comptes utilisateurs)
+    end
+
+    patient --- uc1
+    patient --- uc2
+    patient --- uc3
+    patient --- uc4
+    patient --- uc5
+    patient --- uc6
+
+    pharma --- uc1
+    pharma --- uc7
+    pharma --- uc8
+    pharma --- uc9
+
+    admin --- uc1
+    admin --- uc9
+    admin --- uc10
+
+    uc2 -. include .-> uc3
+    uc4 -. include .-> uc8
+
+    classDef actor fill:#2563eb,stroke:#1e3a8a,color:#fff;

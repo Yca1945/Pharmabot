@@ -1,0 +1,23 @@
+# Dépendances
+/backend/vendor/
+/frontend/node_modules/
+/frontend/dist/
+/ia-service/__pycache__/
+/ia-service/.venv/
+**/__pycache__/
+.pytest_cache/
+
+# Résultats d'évaluation générés
+/ia-service/eval/results.json
+
+# Données & secrets
+.env
+/ia-service/data/chroma/
+*.sqlite
+
+# IDE / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+/ia-service/data/

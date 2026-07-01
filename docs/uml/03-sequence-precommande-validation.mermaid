@@ -1,0 +1,33 @@
+sequenceDiagram
+    autonumber
+    actor P as Patient
+    participant L as API Laravel
+    participant IA as Microservice IA
+    participant DB as MySQL
+    participant Q as Queue (Jobs)
+    actor Ph as Pharmacien
+
+    P->>L: Transmet ses besoins en médicaments
+    L->>IA: Extraction d'entités (NER)
+    IA-->>L: Médicaments + posologies extraites
+    L->>DB: Crée PreCommande (statut = en_attente)
+    L->>DB: Crée LigneCommande(s)
+    L-->>P: Récapitulatif "En attente de validation"
+
+    Ph->>L: Consulte le tableau de bord
+    L->>DB: Liste des pré-commandes en attente
+    DB-->>L: Pré-commandes
+    L-->>Ph: Affichage des demandes
+
+    Note over Ph: Contrôle de l'ordonnance (physique/numérique)
+    alt Validation
+        Ph->>L: Valide la commande
+        L->>DB: statut = valide + code_validation
+        L->>Q: Dispatch job notification
+        Q-->>P: Notification "Commande prête (Click & Collect)"
+    else Rejet
+        Ph->>L: Rejette la commande
+        L->>DB: statut = rejete
+        L->>Q: Dispatch job notification
+        Q-->>P: Notification de rejet + motif
+    end

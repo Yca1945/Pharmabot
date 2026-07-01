@@ -1,0 +1,29 @@
+flowchart TD
+    start([Début]) --> auth{Authentifié ?}
+    auth -- Non --> login[S'inscrire / Se connecter]
+    login --> auth
+    auth -- Oui --> chat[Poser une question au chatbot]
+
+    chat --> rag[/Pipeline RAG : recherche vectorielle/]
+    rag --> guard{Contexte fiable<br/>trouvé ?}
+    guard -- Non --> abstain[Message : consulter le pharmacien]
+    abstain --> more{Autre demande ?}
+
+    guard -- Oui --> answer[Réponse sourcée + info posologie]
+    answer --> wantOrder{Besoin de<br/>médicaments ?}
+    wantOrder -- Non --> more
+
+    wantOrder -- Oui --> ner[/Extraction entités : médicaments + posologie/]
+    ner --> precmd[Création pré-commande<br/>statut = en_attente]
+    precmd --> wait[Attente de validation]
+
+    wait --> pharma{Décision<br/>pharmacien}
+    pharma -- Rejet --> rejected[Notification de rejet + motif]
+    rejected --> more
+    pharma -- Validation --> validated[Notification : commande prête<br/>Click & Collect]
+    validated --> pickup[Retrait en officine]
+    pickup --> reminders[Rappels de prise selon posologie]
+    reminders --> more
+
+    more -- Oui --> chat
+    more -- Non --> stop([Fin])

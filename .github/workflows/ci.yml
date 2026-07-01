@@ -1,0 +1,53 @@
+name: CI Pharmabot
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  ia-tests:
+    name: Microservice IA (pytest)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install (deps de test légères)
+        working-directory: ia-service
+        run: |
+          python -m pip install --upgrade pip
+          pip install pydantic pydantic-settings pytest httpx
+      - name: Tests NER + métriques
+        working-directory: ia-service
+        env:
+          NER_BACKEND: rules
+        run: pytest tests/test_ner.py tests/test_metrics.py -q
+
+  backend-lint:
+    name: Backend Laravel (php -l)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+      - name: Vérification syntaxe PHP
+        run: |
+          find backend/app backend/routes backend/database backend/tests \
+            -name '*.php' -print0 | xargs -0 -n1 php -l
+
+  frontend-build:
+    name: Frontend React (build)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install + build
+        working-directory: frontend
+        run: |
+          npm install
+          npm run build

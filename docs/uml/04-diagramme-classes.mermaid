@@ -1,0 +1,65 @@
+classDiagram
+    class User {
+        +int id
+        +string nom
+        +string email
+        +string password
+        +Role role
+        +s_authentifier()
+    }
+    class ProfilMedical {
+        +int id
+        +string allergies
+        +int age
+        +string antecedents
+    }
+    class Medicament {
+        +int id
+        +string code_barre
+        +string designation
+        +int quantite_stock
+        +string description_technique
+        +float prix
+    }
+    class PreCommande {
+        +int id
+        +Statut statut
+        +datetime date_creation
+        +string code_validation
+        +valider()
+        +rejeter()
+        +modifier()
+    }
+    class LigneCommande {
+        +int id
+        +int quantite_demandee
+        +string posologie_extraite
+    }
+    class DiscussionLog {
+        +int id
+        +string message_utilisateur
+        +string reponse_ia
+        +float fidelite_estimee
+        +bool abstention
+        +datetime date
+    }
+    class Role {
+        <<enumeration>>
+        patient
+        pharmacien
+        admin
+    }
+    class Statut {
+        <<enumeration>>
+        en_attente
+        valide
+        rejete
+        recupere
+    }
+
+    User "1" --> "0..1" ProfilMedical : possède
+    User "1" --> "*" PreCommande : passe
+    User "1" --> "*" PreCommande : valide (pharmacien)
+    PreCommande "1" *-- "1..*" LigneCommande : contient
+    Medicament "1" --> "*" LigneCommande : référencé par
+    User "1" --> "*" DiscussionLog : génère

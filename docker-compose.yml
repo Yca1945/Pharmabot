@@ -1,0 +1,125 @@
+services:
+  # --- Base de données relationnelle ---
+  mysql:
+    image: mysql:8.0
+    container_name: phabot_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-phabot}
+      MYSQL_USER: ${DB_USERNAME:-phabot}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-secret}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - "3307:3306"      # 3307 sur l'hôte pour ne pas entrer en conflit avec WAMP
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-p${DB_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks: [phabot_net]
+
+  # --- Backend métier & API (Laravel / PHP) ---
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phabot_backend
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    ports:
+      - "8000:8000"
+    environment:
+      IA_SERVICE_URL: http://ia-service:8001
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [phabot_net]
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  # --- Microservice Intelligence Artificielle (Python / FastAPI / RAG) ---
+  ia-service:
+    build:
+      context: ./ia-service
+      dockerfile: Dockerfile
+    container_name: phabot_ia
+    restart: unless-stopped
+    volumes:
+      - ./ia-service:/app
+      - chroma_data:/app/data/chroma
+    ports:
+      - "8001:8001"
+    environment:
+      CHROMA_PERSIST_DIR: /app/data/chroma
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-sentence-transformers/all-MiniLM-L6-v2}
+      LLM_BACKEND: ${LLM_BACKEND:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-llama3.1:8b}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks: [phabot_net]
+
+  # --- Worker de file d'attente (notifications RF-06) ---
+  queue:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phabot_queue
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      IA_SERVICE_URL: http://ia-service:8001
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [phabot_net]
+    command: php artisan queue:work --tries=3 --sleep=3
+
+  # --- Scheduler (rappels de prise RF-07) ---
+  scheduler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: phabot_scheduler
+    restart: unless-stopped
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    environment:
+      IA_SERVICE_URL: http://ia-service:8001
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks: [phabot_net]
+    command: php artisan schedule:work
+
+  # --- Frontend React (Vite) ---
+  frontend:
+    image: node:20-alpine
+    container_name: phabot_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    environment:
+      VITE_API_URL: http://localhost:8000/api
+    command: sh -c "npm install && npm run dev -- --host"
+    depends_on:
+      - backend
+    networks: [phabot_net]
+
+volumes:
+  mysql_data:
+  chroma_data:
+
+networks:
+  phabot_net:
+    driver: bridge

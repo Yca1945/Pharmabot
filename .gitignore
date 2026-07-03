@@ -21,3 +21,7 @@
 .DS_Store
 Thumbs.db
 /ia-service/data/
+
+# Config locale de l'outil Claude Code
+.claude/
+CLAUDE.md

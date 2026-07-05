@@ -8,7 +8,9 @@ use Illuminate\Http\Request;
 
 /**
  * Journal d'audit des actions sensibles (RGPD, traçabilité).
- * Réservé à l'administrateur.
+ * Exposé en lecture à l'administrateur (toutes actions) et au pharmacien
+ * (route /officine/historique, mêmes filtres — seules des actions sur les
+ * pré-commandes y sont journalisées, aucune fuite de données d'administration).
  */
 class AuditController extends Controller
 {

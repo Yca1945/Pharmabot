@@ -37,10 +37,13 @@ FREQUENCE_RE = re.compile(
 
 # Mots frequents a ne jamais considerer comme un nom de medicament.
 _STOP = {
-    "bonjour", "merci", "posologie", "dosage", "comprime", "comprimes",
+    "bonjour", "bonsoir", "salut", "coucou", "hello", "hey", "yo", "bjr", "bsr",
+    "merci", "posologie", "dosage", "comprime", "comprimes",
     "gelule", "gelules", "boite", "boites", "prendre", "fois", "jour",
     "matin", "midi", "soir", "heures", "heure", "avec", "pour", "dans",
     "faut", "besoin", "voudrais", "donnez", "quelle", "quel",
+    "au", "revoir", "bientot", "bonne", "journee", "soiree", "bye", "ciao",
+    "oui", "non", "ok", "accord", "entendu", "svp",
 }
 
 

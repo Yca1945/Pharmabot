@@ -10,10 +10,13 @@ class ProfilMedicalResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id' => $this->id,
-            'allergies' => $this->allergies,
-            'age' => $this->age,
-            'antecedents' => $this->antecedents,
+            'id'             => $this->id,
+            'allergies'      => $this->allergies,
+            'antecedents'    => $this->antecedents,
+            'age'            => $this->age,
+            'poids'          => $this->poids,
+            'sexe'           => $this->sexe,
+            'groupe_sanguin' => $this->groupe_sanguin,
         ];
     }
 }

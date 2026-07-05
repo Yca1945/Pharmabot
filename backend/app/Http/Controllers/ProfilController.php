@@ -22,9 +22,12 @@ class ProfilController extends Controller
     public function update(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'allergies' => ['nullable', 'string', 'max:1000'],
-            'age' => ['nullable', 'integer', 'min:0', 'max:120'],
-            'antecedents' => ['nullable', 'string', 'max:2000'],
+            'allergies'      => ['nullable', 'string', 'max:2000'],
+            'antecedents'    => ['nullable', 'string', 'max:2000'],
+            'age'            => ['nullable', 'integer', 'min:0', 'max:130'],
+            'poids'          => ['nullable', 'numeric', 'min:1', 'max:500'],
+            'sexe'           => ['nullable', 'string', 'in:M,F,autre'],
+            'groupe_sanguin' => ['nullable', 'string', 'in:A+,A-,B+,B-,AB+,AB-,O+,O-'],
         ]);
 
         $user = $request->user();

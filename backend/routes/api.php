@@ -11,6 +11,7 @@ use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\HealthController;
 use App\Http\Controllers\MedicamentController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\OrdonnanceController;
 use App\Http\Controllers\PreCommandeController;
 use App\Http\Controllers\ProfilController;
 use App\Http\Controllers\RappelController;
@@ -70,9 +71,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/pre-commandes', [PreCommandeController::class, 'store']);
     Route::post('/pre-commandes/depuis-chat', [PreCommandeController::class, 'depuisChat']);
 
+    // Ordonnance jointe à une pré-commande (patient : envoi ; patient/pharmacien : consultation)
+    Route::post('/pre-commandes/{preCommande}/ordonnance', [OrdonnanceController::class, 'store']);
+    Route::get('/pre-commandes/{preCommande}/ordonnance', [OrdonnanceController::class, 'show']);
+
     // --- Tableau de bord pharmacien ---
     Route::middleware('role:pharmacien')->prefix('officine')->group(function () {
         Route::get('/statistiques', StatistiquesController::class);
+        Route::get('/historique', AuditController::class);
         Route::get('/pre-commandes', [DashboardController::class, 'enAttente']);
         Route::get('/pre-commandes/validees', [DashboardController::class, 'validees']);
         Route::post('/pre-commandes/{preCommande}/valider', [DashboardController::class, 'valider']);

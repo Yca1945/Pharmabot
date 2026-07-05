@@ -16,6 +16,8 @@ class PreCommande extends Model
         'code_validation',
         'motif_rejet',
         'date_creation',
+        'ordonnance_path',
+        'ordonnance_nom_original',
     ];
 
     protected $casts = [

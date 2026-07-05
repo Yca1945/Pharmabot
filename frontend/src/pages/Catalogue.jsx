@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Plus, Save, Pencil, Trash2, Search, X } from 'lucide-react'
 import api from '../api/client.js'
 
 const VIDE = { designation: '', code_barre: '', quantite_stock: 0, prix: 0, description_technique: '' }
@@ -76,7 +77,12 @@ export default function Catalogue() {
 
   return (
     <div className="page">
-      <h1>Catalogue</h1>
+      <div className="page-head">
+        <div className="page-head-text">
+          <h1 className="page-title">Catalogue médicaments</h1>
+          <p className="page-subtitle">Gérez les médicaments disponibles à l'officine.</p>
+        </div>
+      </div>
 
       <form className="card form-med" onSubmit={soumettre}>
         <h3>{editId ? 'Modifier le médicament' : 'Ajouter un médicament'}</h3>
@@ -104,10 +110,12 @@ export default function Catalogue() {
           <textarea rows="2" value={form.description_technique} onChange={maj('description_technique')} />
         </label>
         <div className="actions">
-          <button className="btn-primary">{editId ? 'Enregistrer' : 'Ajouter'}</button>
+          <button className="btn-primary btn-icon">
+            {editId ? <><Save size={15} /> Enregistrer</> : <><Plus size={15} /> Ajouter</>}
+          </button>
           {editId && (
-            <button type="button" className="btn-ghost" onClick={annuler}>
-              Annuler
+            <button type="button" className="btn-ghost btn-icon" onClick={annuler}>
+              <X size={15} /> Annuler
             </button>
           )}
         </div>
@@ -115,8 +123,8 @@ export default function Catalogue() {
 
       <div className="search-row">
         <input placeholder="Rechercher…" value={q} onChange={(e) => setQ(e.target.value)} />
-        <button className="btn-ghost" onClick={() => charger(1)}>
-          Rechercher
+        <button className="btn-ghost btn-icon" onClick={() => charger(1)}>
+          <Search size={15} /> Rechercher
         </button>
       </div>
 
@@ -142,11 +150,11 @@ export default function Catalogue() {
                 </td>
                 <td>{Number(m.prix).toFixed(0)} FCFA</td>
                 <td className="row-actions">
-                  <button className="btn-ghost" onClick={() => editer(m)}>
-                    Modifier
+                  <button className="btn-ghost btn-icon" onClick={() => editer(m)}>
+                    <Pencil size={13} /> Modifier
                   </button>
-                  <button className="btn-danger" onClick={() => supprimer(m.id)}>
-                    Suppr.
+                  <button className="btn-danger btn-icon" onClick={() => supprimer(m.id)}>
+                    <Trash2 size={13} /> Supprimer
                   </button>
                 </td>
               </tr>

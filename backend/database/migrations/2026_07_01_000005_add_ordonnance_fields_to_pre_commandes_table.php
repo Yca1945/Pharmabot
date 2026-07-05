@@ -1,0 +1,23 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('pre_commandes', function (Blueprint $table) {
+            $table->string('ordonnance_path')->nullable()->after('motif_rejet');
+            $table->string('ordonnance_nom_original')->nullable()->after('ordonnance_path');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('pre_commandes', function (Blueprint $table) {
+            $table->dropColumn(['ordonnance_path', 'ordonnance_nom_original']);
+        });
+    }
+};

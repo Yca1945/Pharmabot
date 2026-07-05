@@ -6,6 +6,9 @@ class ProfilMedical(BaseModel):
     allergies: str | None = None
     antecedents: str | None = None
     age: int | None = None
+    poids: float | None = None
+    sexe: str | None = None          # "M" | "F" | "autre"
+    groupe_sanguin: str | None = None
 
 
 class TourConversation(BaseModel):
@@ -41,6 +44,10 @@ class ChatResponse(BaseModel):
     # True si le garde-fou a refusé de répondre faute de contexte fiable.
     abstention: bool = False
     fidelite_estimee: float | None = None
+    # True pour un échange conversationnel (salutation, remerciement,
+    # demande de clarification) : pas une réponse médicale sourcée, donc le
+    # frontend ne doit pas proposer de feedback dessus.
+    conversationnel: bool = False
 
 
 class IngestRequest(BaseModel):

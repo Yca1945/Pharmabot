@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { UserPlus, Pencil, Trash2, Save, X } from 'lucide-react'
 import api from '../api/client.js'
 import { useAuth } from '../auth/AuthContext.jsx'
 
@@ -98,8 +99,10 @@ export default function Admin() {
   return (
     <div className="page">
       <div className="page-head">
-        <h1>Gestion des utilisateurs</h1>
-        {total > 0 && <span className="muted">{total} compte(s)</span>}
+        <div className="page-head-text">
+          <h1 className="page-title">Utilisateurs</h1>
+          {total > 0 && <p className="page-subtitle">{total} compte{total > 1 ? 's' : ''} enregistré{total > 1 ? 's' : ''}</p>}
+        </div>
       </div>
 
       {/* Formulaire création */}
@@ -132,7 +135,7 @@ export default function Admin() {
           </label>
         </div>
         <div className="actions">
-          <button className="btn-primary">Créer le compte</button>
+          <button className="btn-primary btn-icon"><UserPlus size={15} /> Créer le compte</button>
         </div>
       </form>
 
@@ -212,24 +215,24 @@ export default function Admin() {
                 <td className="row-actions">
                   {editId === u.id ? (
                     <>
-                      <button className="btn-primary btn-sm" onClick={() => sauvegarderEdit(u.id)}>
-                        Sauvegarder
+                      <button className="btn-primary btn-sm btn-icon" onClick={() => sauvegarderEdit(u.id)}>
+                        <Save size={13} /> Sauvegarder
                       </button>
-                      <button className="btn-ghost btn-sm" onClick={() => setEditId(null)}>
-                        Annuler
+                      <button className="btn-ghost btn-sm btn-icon" onClick={() => setEditId(null)}>
+                        <X size={13} /> Annuler
                       </button>
                     </>
                   ) : (
                     <>
                       <button
-                        className="btn-ghost btn-sm"
+                        className="btn-ghost btn-sm btn-icon"
                         onClick={() => { setEditId(u.id); setEditData({ name: u.name, role: u.role }) }}
                       >
-                        Modifier
+                        <Pencil size={13} /> Modifier
                       </button>
                       {u.id !== user.id && (
-                        <button className="btn-danger btn-sm" onClick={() => supprimer(u.id, u.name)}>
-                          Supprimer
+                        <button className="btn-danger btn-sm btn-icon" onClick={() => supprimer(u.id, u.name)}>
+                          <Trash2 size={13} /> Supprimer
                         </button>
                       )}
                     </>

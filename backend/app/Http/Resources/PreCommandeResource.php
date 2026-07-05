@@ -16,6 +16,8 @@ class PreCommandeResource extends JsonResource
             'code_validation' => $this->code_validation,
             'motif_rejet' => $this->motif_rejet,
             'date_creation' => $this->date_creation,
+            'a_ordonnance' => (bool) $this->ordonnance_path,
+            'ordonnance_nom' => $this->ordonnance_nom_original,
             'lignes' => LigneCommandeResource::collection($this->whenLoaded('lignes')),
             'patient' => $this->whenLoaded('patient', fn () => [
                 'id' => $this->patient->id,

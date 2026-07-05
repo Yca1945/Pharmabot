@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ProfilMedical extends Model
 {
-    protected $fillable = ['allergies', 'age', 'antecedents'];
+    protected $fillable = ['allergies', 'antecedents', 'age', 'poids', 'sexe', 'groupe_sanguin'];
 
     /**
      * Chiffrement AES au repos des données de santé (RGPD).

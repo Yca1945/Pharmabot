@@ -7,7 +7,11 @@ const ACTION_LABEL = {
   'pre_commande.recuperer': 'Récupération commande',
 }
 
-export default function AuditJournal() {
+export default function AuditJournal({
+  endpoint = '/admin/audit',
+  titre = "Journal d'audit",
+  sousTitre = 'traçabilité RGPD',
+}) {
   const [logs, setLogs] = useState([])
   const [loading, setLoading] = useState(true)
   const [filtreAction, setFiltreAction] = useState('')
@@ -23,7 +27,7 @@ export default function AuditJournal() {
     if (depuis) params.depuis = depuis
     if (jusqu) params.jusqu = jusqu
     api
-      .get('/admin/audit', { params })
+      .get(endpoint, { params })
       .then(({ data }) => {
         setLogs(data.data ?? data)
         setMeta({
@@ -41,8 +45,10 @@ export default function AuditJournal() {
   return (
     <div className="page">
       <div className="page-head">
-        <h1>Journal d'audit</h1>
-        {meta.total > 0 && <span className="muted">{meta.total} entrée(s)</span>}
+        <div className="page-head-text">
+          <h1 className="page-title">{titre}</h1>
+          {meta.total > 0 && <p className="page-subtitle">{meta.total} entrée{meta.total > 1 ? 's' : ''} — {sousTitre}</p>}
+        </div>
       </div>
 
       <div className="filters-row">

@@ -18,6 +18,7 @@ from .config import settings
 from .llm_client import generate
 from .ner import extract_entities  # NER deleguee au module dedie (spaCy/regles)
 from .schemas import ChatResponse, ExtractedEntity, ProfilMedical, SourceDoc, TourConversation
+from .smalltalk import detecter as detecter_smalltalk
 from .vector_store import store
 
 SYSTEM_PROMPT = (
@@ -34,6 +35,21 @@ SYSTEM_PROMPT = (
 ABSTENTION_MSG = (
     "Je ne dispose pas d'information fiable sur ce point. "
     "Veuillez consulter votre pharmacien."
+)
+
+# Question sans médicament identifiable : on guide le patient plutôt que
+# de s'abstenir sèchement, pour éviter les impasses conversationnelles.
+CLARIFICATION_MSG = (
+    "Je ne suis pas sûr de bien comprendre votre demande. "
+    "Pourriez-vous préciser le nom d'un médicament, un symptôme ou une "
+    "question de posologie ? Par exemple : « Quels sont les effets "
+    "secondaires du Doliprane ? »"
+)
+
+# Médicament nommé mais absent du catalogue / hors périmètre de connaissance.
+HORS_CATALOGUE_MSG = (
+    "Je n'ai pas d'information fiable sur {medicament} dans notre catalogue. "
+    "Veuillez consulter votre pharmacien pour toute question à ce sujet."
 )
 
 logger = logging.getLogger("pharmabot.rag")
@@ -58,6 +74,13 @@ def _build_profil_context(profil: ProfilMedical | None) -> str:
     parts = []
     if profil.age:
         parts.append(f"Âge : {profil.age} ans")
+    if profil.poids:
+        parts.append(f"Poids : {profil.poids} kg")
+    if profil.sexe:
+        label = {"M": "Masculin", "F": "Féminin"}.get(profil.sexe, profil.sexe)
+        parts.append(f"Sexe : {label}")
+    if profil.groupe_sanguin:
+        parts.append(f"Groupe sanguin : {profil.groupe_sanguin}")
     if profil.allergies:
         parts.append(f"Allergies connues : {profil.allergies}")
     if profil.antecedents:
@@ -90,6 +113,22 @@ async def answer(
     historique: list[TourConversation] | None = None,
 ) -> ChatResponse:
     t0 = time.perf_counter()
+
+    # --- Small-talk : salutations/remerciements gérés sans pipeline RAG ---
+    # Évite aussi que le NER n'interprète un mot de politesse ("Hello") comme
+    # un faux nom de médicament (repli regex sur mot capitalisé).
+    reponse_smalltalk = detecter_smalltalk(message)
+    if reponse_smalltalk is not None:
+        logger.info("smalltalk", extra={"data": {"message": message}})
+        return ChatResponse(
+            reponse=reponse_smalltalk,
+            sources=[],
+            entites=[],
+            abstention=False,
+            fidelite_estimee=None,
+            conversationnel=True,
+        )
+
     requete_enrichie = _enrichir_requete(message, historique)
     hits = store.search(requete_enrichie)
     entities = extract_entities(message)
@@ -103,13 +142,27 @@ async def answer(
 
     # --- Garde-fou anti-hallucination ---
     if not hits or best_sim < settings.min_similarity:
-        logger.info("abstention", extra={"data": {"best_sim": best_sim, "seuil": settings.min_similarity}})
+        # Distinguer deux cas : question vague (aucun médicament cité), qui
+        # n'est pas un échec à proprement parler — on guide simplement le
+        # patient — vs médicament cité mais absent de notre base de
+        # connaissance, qui est un véritable refus du garde-fou.
+        vague = not entities
+        if vague:
+            reponse = CLARIFICATION_MSG
+        else:
+            reponse = HORS_CATALOGUE_MSG.format(medicament=entities[0].medicament)
+        logger.info("abstention", extra={"data": {
+            "best_sim": best_sim,
+            "seuil": settings.min_similarity,
+            "vague": vague,
+        }})
         return ChatResponse(
-            reponse=ABSTENTION_MSG,
+            reponse=reponse,
             sources=[],
             entites=entities,
-            abstention=True,
+            abstention=not vague,
             fidelite_estimee=None,
+            conversationnel=vague,
         )
 
     context_blocks = [f"[{h['medicament']}] {h['extrait']}" for h in hits]

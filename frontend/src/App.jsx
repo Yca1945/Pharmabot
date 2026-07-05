@@ -127,6 +127,18 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/officine/historique"
+          element={
+            <ProtectedRoute role="pharmacien">
+              <AuditJournal
+                endpoint="/officine/historique"
+                titre="Historique des activités"
+                sousTitre="validations, rejets et retraits de l'officine"
+              />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Layout>

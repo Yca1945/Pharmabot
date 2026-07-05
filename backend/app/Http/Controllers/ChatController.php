@@ -31,9 +31,12 @@ class ChatController extends Controller
 
         $profil = $user->profilMedical;
         $profilMedical = $profil ? [
-            'allergies'   => $profil->allergies,
-            'antecedents' => $profil->antecedents,
-            'age'         => $profil->age,
+            'allergies'      => $profil->allergies,
+            'antecedents'    => $profil->antecedents,
+            'age'            => $profil->age,
+            'poids'          => $profil->poids,
+            'sexe'           => $profil->sexe,
+            'groupe_sanguin' => $profil->groupe_sanguin,
         ] : null;
 
         // Mémoire conversationnelle : 6 derniers échanges non-abstention, ordre chronologique.

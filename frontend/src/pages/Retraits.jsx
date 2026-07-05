@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { PackageCheck, Package } from 'lucide-react'
 import api from '../api/client.js'
 
 export default function Retraits() {
@@ -26,42 +27,53 @@ export default function Retraits() {
     }
   }
 
-  if (loading) return <p className="muted">Chargement…</p>
+  if (loading) return <div className="loader"><div className="spinner" /> Chargement…</div>
 
   return (
     <div className="page">
-      <h1>Retraits (Click &amp; Collect)</h1>
-      <p className="muted">Commandes validées en attente de retrait par le patient.</p>
-
-      {commandes.length === 0 && <p className="muted">Aucune commande à remettre.</p>}
-
-      <div className="cards">
-        {commandes.map((c) => (
-          <div key={c.id} className="card">
-            <div className="card-head">
-              <strong>Commande #{c.id}</strong>
-              <span className="tag ok">Code : {c.code_validation}</span>
-            </div>
-            <p className="muted">{c.patient?.name}</p>
-            <ul className="lignes">
-              {c.lignes?.map((l) => (
-                <li key={l.id}>
-                  {l.medicament?.designation} × {l.quantite_demandee}
-                </li>
-              ))}
-            </ul>
-            <div className="actions">
-              <button
-                className="btn-primary"
-                disabled={busyId === c.id}
-                onClick={() => recuperer(c.id)}
-              >
-                Marquer récupéré
-              </button>
-            </div>
-          </div>
-        ))}
+      <div className="page-head">
+        <div className="page-head-text">
+          <h1 className="page-title">Retraits — Click &amp; Collect</h1>
+          <p className="page-subtitle">Commandes validées en attente de retrait.</p>
+        </div>
       </div>
+
+      {commandes.length === 0 ? (
+        <div className="empty-state">
+          <Package size={48} />
+          <p>Aucune commande en attente de retrait.</p>
+        </div>
+      ) : (
+        <div className="cards">
+          {commandes.map((c) => (
+            <div key={c.id} className="card">
+              <div className="card-head">
+                <strong>Commande #{c.id}</strong>
+                <span className="code-retrait">
+                  <PackageCheck size={12} /> {c.code_validation}
+                </span>
+              </div>
+              <p className="muted" style={{ marginBottom: 10 }}>{c.patient?.name}</p>
+              <ul className="lignes">
+                {c.lignes?.map((l) => (
+                  <li key={l.id}>
+                    <span>{l.medicament?.designation} <strong>× {l.quantite_demandee}</strong></span>
+                  </li>
+                ))}
+              </ul>
+              <div className="actions">
+                <button
+                  className="btn-primary btn-icon"
+                  disabled={busyId === c.id}
+                  onClick={() => recuperer(c.id)}
+                >
+                  <PackageCheck size={15} /> {busyId === c.id ? 'Traitement…' : 'Marquer récupéré'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
